@@ -12,21 +12,27 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+import $ from 'jquery';
 
 /**
- * This module is responsible for fawry content in the gateways modal.
+ * TODO describe module callback
  *
- * @module     paygw_fawry/gateway_modal
- * @copyright  2022 Mohammad Farouk <phun.for.physics@gmail.com>
+ * @module     paygw_fawry/callback
+ * @copyright  2024 Mohammad Farouk <phun.for.physics@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-export const process = (component, paymentArea, itemId, description) => {
-    return new Promise(() => {
-            location.href = M.cfg.wwwroot + '/payment/gateway/fawry/process.php?' +
-                'component=' + component +
-                '&paymentarea=' + paymentArea +
-                '&itemid=' + itemId +
-                '&description=' + description;
-        });
+/**
+ * Event observer to auto copy the callback url.
+ */
+export const init = () => {
+    $('#cpicon').on("click", function() {
+        var copyText = document.getElementById('cburl').innerText;
+        if (navigator && navigator.clipboard) {
+            navigator.clipboard.writeText(copyText);
+        } else {
+            // eslint-disable-next-line no-alert
+            prompt("Copy link, then click OK.", copyText);
+        }
+    });
 };

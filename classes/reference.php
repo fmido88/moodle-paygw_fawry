@@ -100,6 +100,7 @@ class reference extends requester {
         ];
 
         $callback = new \moodle_url('/payment/gateway/fawry/callback.php');
+        $callback = new \moodle_url('https://776a-154-131-154-15.ngrok-free.app/payment/gateway/fawry/callback.php');
         $data['orderWebHookUrl'] = $callback->out(false);
 
         return $data;
@@ -109,7 +110,7 @@ class reference extends requester {
      * @return object|string|null
      */
     public function request_reference() {
-        $staging = $this->order->get_gateway_config()->staging;
+        $staging = (bool)$this->order->get_gateway_config()->staging;
         if ($staging) {
             $url = 'https://atfawry.fawrystaging.com/ECommerceWeb/Fawry/payments/charge';
         } else {
@@ -118,7 +119,7 @@ class reference extends requester {
         $data = $this->format_data();
         $response = $this->request($data, $url);
 
-        if (!empty($response) && $response->statusCode == "200"
+        if (!empty($response) && $response->statusCode == 200
             && in_array(strtolower($response->orderStatus), ['paid', 'unpaid', 'new'])) {
 
             // ...referenceNumber (if exist) + merchantRefNum + paymentAmount (in two decimal places format 10.00)
@@ -153,7 +154,7 @@ class reference extends requester {
         if ($phone = $this->get_stored_phone()) {
             return $phone;
         }
-        return '01010101010';
+        return null;
     }
     /**
      * Get stored phone number.
@@ -174,7 +175,7 @@ class reference extends requester {
         }
         $records = $DB->get_records('user_info_data', ['userid' => $user->id], '', 'data');
         foreach ($records as $record) {
-            if ($number = utils::validate_phone_number($record)) {
+            if ($number = utils::validate_phone_number($record->data)) {
                 return $number;
             }
         }

@@ -70,7 +70,6 @@ class security {
      * @return bool
      */
     public function verify_signature($signature, $strings) {
-        $config = $this->order->get_gateway_config();
         $str = '';
         foreach ($strings as $key => $string) {
             if (stripos('amount', $key) !== false
@@ -79,7 +78,11 @@ class security {
             }
             $str .= $string;
         }
-        $string .= $config->hashcode;
+        return $this->verify_signature_string($signature, $string);
+    }
+    public function verify_signature_string($signature, $str) {
+        $config = $this->order->get_gateway_config();
+        $string = $str . $config->hashcode;
         return $signature === hash('sha256' , $string);
     }
 }

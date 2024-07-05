@@ -24,22 +24,26 @@
 
     Example context (json):
     {
-        "ref": "123456"
+        "ref": "123456",
+        "success": "1",
+        "error": ""
     }
 
 }}
 
 <div id="accepting-container">
-    <div class="accept_fawry_reference">
-        {{{#success}}}
+    <div class="accept_fawry_reference" style="text-align:center;">
+        {{#success}}
             <h2>{{# str }} reference_bill_reference, paygw_fawry {{/ str }}</h2>
-            <h3 id="accept_fawry_reference_id">{{{ref}}}</h3>
+            <h3 class="fawry_reference">{{reference}}</h3>
+            <h4 class="fawry-amount"> {{#str}} refamount, paygw_fawry {{/str}}: {{amount}} EGP</h4>
+            <p>{{# str }} validto, paygw_fawry {{/ str}}: {{deadtime}}</p>
             <p>{{# str }} reference_process_help, paygw_fawry {{/ str }}</p>
-            <div data-purpose="status"><div>
-        {{{/success}}}
-        {{{^success}}}
+            <div data-purpose="status"></div>
+        {{/success}}
+        {{^success}}
             <h2>{{# str }} reference_error, paygw_fawry {{/ str }}</h2>
-            <h3 id="accept_fawry_reference_id">{{{error}}}</h3>
-        {{{/success}}}
+            <h3 class="fawry_reference_error">{{error}}</h3>
+        {{/success}}
     </div>
 </div>

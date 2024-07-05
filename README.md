@@ -1,9 +1,8 @@
 # Fawry Payment #
 
-The popular payment solution in Egypt.
+TODO Describe the plugin shortly here.
 
-Use reference code to pay for courses in moodle.
-Enable the plugin and start collect fees by reference codes from any near Fawry termainl in Egypt
+TODO Provide more detailed description here.
 
 ## Installing via uploaded ZIP file ##
 

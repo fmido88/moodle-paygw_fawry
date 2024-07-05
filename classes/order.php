@@ -296,7 +296,6 @@ class order {
                                                             $this->paymentarea,
                                                             $this->itemid,
                                                             'fawry');
-        $config->integration_ids = json_decode($config->integration_ids);
 
         return $config;
     }

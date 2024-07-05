@@ -49,6 +49,7 @@ class gateway extends \core_payment\gateway {
      * @param \core_payment\form\account_gateway $form
      */
     public static function add_configuration_to_gateway_form(\core_payment\form\account_gateway $form): void {
+        global $OUTPUT, $CFG;
         $mform = $form->get_mform();
 
         $mform->addElement('advcheckbox', 'staging', get_string('staging', 'paygw_fawry'), '', ['group' => 1], [false, true]);
@@ -60,6 +61,10 @@ class gateway extends \core_payment\gateway {
         $mform->addElement('passwordunmask', 'hashcode', get_string('hashcode', 'paygw_fawry'));
         $mform->setType('hashcode', PARAM_TEXT);
         $mform->addHelpButton('hashcode', 'hashcode', 'paygw_fawry');
+
+        $callback = $OUTPUT->render_from_template('paygw_fawry/admin-callback', ['wwwroot' => $CFG->wwwroot]);
+        $mform->addElement('static', 'callback', get_string('callback', 'paygw_fawry'), $callback);
+        $mform->addHelpButton('callback', 'callback', 'paygw_fawry');
     }
 
     /**

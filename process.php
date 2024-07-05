@@ -52,8 +52,6 @@ if (!empty($orderid)) {
     $order       = $requester->order;
 }
 
-
-
 $params = [
     'orderid'     => $order->get_id(),
     'description' => $description,

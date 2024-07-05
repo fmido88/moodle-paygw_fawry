@@ -25,6 +25,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['callback'] = 'Callback url';
+$string['callback_help'] = 'Copy this url and add it to your account in Fawry terminal dashboard.';
 
 $string['gatewaydescription'] = 'Pay with Fawry reference code';
 $string['gatewayname'] = 'Fawry';
@@ -65,3 +67,5 @@ $string['staging'] = 'Staging';
 
 
 $string['unknown_error'] = 'Unknown error';
+$string['validto'] = 'Valid to';
+$string['refamount'] = 'Pay an amount of: ';

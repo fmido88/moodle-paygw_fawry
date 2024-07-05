@@ -72,12 +72,12 @@ class requester {
             'failonerror'    => false,
         ]);
         $curl->setHeader([
-            'Content-Type' => 'application/json',
-            'Accept'       => 'application/json',
+            'Content-Type: application/json',
+            'Accept: application/json',
         ]);
 
         if ($method == 'post') {
-            $rawresponse = $curl->post($url, json_encode($data));
+            $rawresponse = $curl->post($url, json_encode($data, true));
         } else if ($method == 'get') {
             $rawresponse = $curl->get($url, $data);
         } else {
@@ -86,6 +86,8 @@ class requester {
 
         $response = json_decode($rawresponse);
         $httpcode = $curl->get_info()['http_code'];
+
+        $curl->cleanopt();
         if (!in_array($httpcode, [200, 201])) {
             debugging($rawresponse);
             return $response;
