@@ -1,8 +1,10 @@
 # Fawry Payment #
+Fawry Payment By reference code:
 
-TODO Describe the plugin shortly here.
-
-TODO Provide more detailed description here.
+When enabled as the user select Fawry as payment method for a course, a reference code will be generated.
+The user pay the fees using myFawry app or a nearest Fawry terminals.
+Once the payment confirmed the page will be redirected to the course automatically.
+In later versions: Adding payments by credit cards and mobile wallets.
 
 ## Installing via uploaded ZIP file ##
 

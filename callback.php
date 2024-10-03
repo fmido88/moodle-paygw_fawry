@@ -45,11 +45,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $payrefnum   = $jsondata['paymentRefrenceNumber'] ?? '';
 
     // Strings needed to calculate hash code:
-    // referenceNumber (if exist) + merchantRefNum + paymentAmount (in two decimal places format 10.00)
-    // + orderAmount (in two decimal places format 10.00) + orderStatus + paymentMethod
-    // + fawryFees (if exist) (in two decimal places format 10.00)) + shippingFees (if exist) (in two decimal places format 10.00))
-    // + authNumber (if exists) + customerMail (if exist) + customerMobile (if exist) + secureKey
-    // ...
     // fawryRefNumber + merchantRefNum + Payment amount(in two decimal format 10.00)
     // +Order amount(in two decimal format 10.00)+Order Status + Payment method
     // + Payment reference number ( if exist as in case of notification for order creation this element will be empty) + secureKey.
@@ -60,11 +55,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'orderAmount'     => format_float($orderamount, 2),
         'orderStatus'     => $status,
         'paymentMethod'   => $method,
-        // 'fawryFees'       => @format_float($jsondata['fawryFees'], 2) ?? '',
-        // 'shippingFees'    => @format_float($jsondata['shippingFees'], 2) ?? '',
-        // 'authNumber'      => $jsondata['authNumber'] ?? '',
-        // 'customerMail'    => $jsondata['customerMail'] ?? '',
-        // 'customerMobile'  => $jsondata['customerMobile'] ?? '',
         'referenceNumber' => $payrefnum,
     ];
     $string = implode('', $strings);

@@ -80,6 +80,12 @@ class security {
         }
         return $this->verify_signature_string($signature, $string);
     }
+    /**
+     * Verify signature from concatenated strings
+     * @param string $signature
+     * @param string $str
+     * @return bool
+     */
     public function verify_signature_string($signature, $str) {
         $config = $this->order->get_gateway_config();
         $string = $str . $config->hashcode;

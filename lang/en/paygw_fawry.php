@@ -68,4 +68,4 @@ $string['staging'] = 'Staging';
 
 $string['unknown_error'] = 'Unknown error';
 $string['validto'] = 'Valid to';
-$string['refamount'] = 'Pay an amount of: ';
+$string['refamount'] = 'Pay an amount of';
