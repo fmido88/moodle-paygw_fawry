@@ -100,7 +100,7 @@ class reference extends requester {
         ];
 
         $callback = new \moodle_url('/payment/gateway/fawry/callback.php');
-        $callback = new \moodle_url('https://776a-154-131-154-15.ngrok-free.app/payment/gateway/fawry/callback.php');
+
         $data['orderWebHookUrl'] = $callback->out(false);
 
         return $data;
@@ -226,6 +226,7 @@ class reference extends requester {
                 'msg'    => json_decode($response),
             ];
         }
+
         return [
                 'status' => 'error',
                 'msg'    => get_string('unknown_error', 'paygw_fawry'),
