@@ -187,7 +187,14 @@ class reference extends requester {
      */
     public function request_status() {
         $secure = new security($this->order);
-        $url = 'https://atfawry.fawrystaging.com/ECommerceWeb/Fawry/payments/status/v2';
+
+        $staging = (bool)$this->order->get_gateway_config()->staging;
+        if ($staging) {
+            $url = 'https://atfawry.fawrystaging.com/ECommerceWeb/Fawry/payments/status/v2';
+        } else {
+            $url = 'https://www.atfawry.com/ECommerceWeb/Fawry/payments/status/v2';
+        }
+
         $data = [
             'merchantCode'      => $this->mcode,
             'merchantRefNumber' => $this->order->get_id(),
