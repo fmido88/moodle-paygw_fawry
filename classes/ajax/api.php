@@ -52,7 +52,7 @@ class api extends \external_api {
         $order = new order($orderid);
         $userid = $order->get_userid();
         if ($userid != $USER->id) {
-            throw new \moodle_exception('invaliduserid');
+            throw new \moodle_exception('invalid user id');
         }
         return [
             'status' => $order->get_status(),

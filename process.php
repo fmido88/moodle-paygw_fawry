@@ -30,7 +30,6 @@ global $DB, $USER;
 
 $orderid     = optional_param('orderid', null, PARAM_INT);
 $description = optional_param('description', '', PARAM_TEXT);
-$phone       = optional_param('phone', null, PARAM_TEXT);
 
 if (!empty($orderid)) {
     $order = new paygw_fawry\order($orderid);
@@ -55,8 +54,12 @@ if (!empty($orderid)) {
 $params = [
     'orderid'     => $order->get_id(),
     'description' => $description,
-    'phone'       => $phone,
 ];
+
+if ($phone = $requester->get_user_mobile()) {
+    $params['phone'] = $phone;
+}
+
 
 $url = new moodle_url('/payment/gateway/fawry/process.php', $params);
 $PAGE->set_context(context_system::instance());
@@ -68,17 +71,27 @@ $PAGE->set_heading($title);
 $PAGE->set_cacheable(false);
 $PAGE->set_pagelayout('frontpage');
 
-$phone = $requester->get_user_mobile();
-
 if (empty($phone)) {
     echo $OUTPUT->header();
     echo $OUTPUT->notification(get_string('no_phone', 'paygw_fawry'), 'error');
-    $mform = new MoodleQuickForm('fawry-phone', 'get', $url);
+
+    unset($params['phone']);
+    $mform = new MoodleQuickForm('fawry-phone', 'get', $url->out_omit_querystring());
 
     $mform->addElement('text', 'phone', get_string('phone', 'paygw_fawry'));
     $mform->setType('phone', PARAM_TEXT);
 
     $mform->addElement('submit', 'submit', get_string('submit'));
+
+    foreach ($params as $element => $value) {
+        $mform->addElement('hidden', $element);
+        $mform->setDefault($element, $value);
+        if ($element == 'orderid') {
+            $mform->setType($element, PARAM_INT);
+        } else {
+            $mform->setType($element, PARAM_TEXT);
+        }
+    }
 
     $mform->display();
     echo $OUTPUT->footer();
