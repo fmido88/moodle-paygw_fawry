@@ -44,8 +44,8 @@ if (!empty($orderid)) {
 
 } else {
 
-    $component   = required_param('component', PARAM_TEXT);
-    $paymentarea = required_param('paymentarea', PARAM_TEXT);
+    $component   = required_param('component', PARAM_COMPONENT);
+    $paymentarea = required_param('paymentarea', PARAM_AREA);
     $itemid      = required_param('itemid', PARAM_INT);
     $requester   = paygw_fawry\reference::make($component, $paymentarea, $itemid, $description);
     $order       = $requester->order;
