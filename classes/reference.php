@@ -116,6 +116,7 @@ class reference extends requester {
         } else {
             $url = 'https://www.atfawry.com/ECommerceWeb/Fawry/payments/charge';
         }
+
         $data = $this->format_data();
         $response = $this->request($data, $url);
 
@@ -201,7 +202,14 @@ class reference extends requester {
             'signature'         => $secure->make_status_signature(),
         ];
 
-        $response = $this->request($data, $url, 'get');
+        // The merchantCode could have special characters and Fawry not recognize escaping.
+        $params = '';
+        foreach ($data as $key => $value) {
+            $params .= "$key=$value&";
+        }
+        $params = substr($params, 0, -1);
+        $response = $this->request([], $url, 'get');
+
         if (!empty($response)) {
             if (is_string($response)) {
                 return [
