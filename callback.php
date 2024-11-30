@@ -62,6 +62,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     die('METHOD "' . $_SERVER['REQUEST_METHOD'] . '" NOT ALLOWED');
 }
 
+$orderid = clean_param($orderid, PARAM_INT);
+
 if (empty($orderid)) {
     die('ORDER ID NOT FOUND');
 }
