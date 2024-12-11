@@ -20,6 +20,13 @@ global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 
 use paygw_fawry\order;
+use paygw_fawry\reference;
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_single_structure;
+use core_external\external_value;
+use moodle_exception;
+
 /**
  * Class api
  *
@@ -27,21 +34,21 @@ use paygw_fawry\order;
  * @copyright  2024 Mohammad Farouk <phun.for.physics@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class api extends \external_api {
+class api extends external_api {
     /**
      * check_status_parameters
-     * @return \external_function_parameters
+     * @return external_function_parameters
      */
     public static function check_status_parameters() {
-        return new \external_function_parameters([
-                'orderid' => new \external_value(PARAM_INT, 'The local order id'),
+        return new external_function_parameters([
+                'orderid' => new external_value(PARAM_INT, 'The local order id'),
             ]);
     }
 
     /**
      * Check the order status
      * @param int $orderid
-     * @throws \moodle_exception
+     * @throws moodle_exception
      * @return string[]
      */
     public static function check_status($orderid) {
@@ -52,19 +59,67 @@ class api extends \external_api {
         $order = new order($orderid);
         $userid = $order->get_userid();
         if ($userid != $USER->id) {
-            throw new \moodle_exception('invalid user id');
+            throw new moodle_exception('invalid user id');
         }
         return [
             'status' => $order->get_status(),
         ];
     }
+
     /**
      * The returned values of check_status()
-     * @return \external_single_structure
+     * @return external_single_structure
      */
     public static function check_status_returns() {
-        return new \external_single_structure([
-            'status' => new \external_value(PARAM_ALPHA, 'The order status'),
+        return new external_single_structure([
+            'status' => new external_value(PARAM_ALPHA, 'The order status'),
         ]);
+    }
+
+    /**
+     * check_status_parameters
+     * @return \external_function_parameters
+     */
+    public static function instant_check_parameters() {
+        return new external_function_parameters([
+                'orderid' => new external_value(PARAM_INT, 'The local order id'),
+            ]);
+    }
+
+    /**
+     * Update the order status instantaneously
+     * @param int $orderid
+     * @throws moodle_exception
+     * @return null
+     */
+    public static function instant_check($orderid) {
+        global $USER;
+        require_login(null, false);
+        $params = self::validate_parameters(self::instant_check_parameters(), ['orderid' => $orderid]);
+        $orderid = $params['orderid'];
+        $order = new order($orderid);
+        $userid = $order->get_userid();
+        if ($userid != $USER->id) {
+            throw new moodle_exception('invaliduserid');
+        }
+
+        $reference = new reference($order);
+        $response = $reference->request_status();
+
+        $status = $response['status'] ?? '';
+
+        if (strtolower($status) == 'paid') {
+            $order->payment_complete();
+        }
+
+        return null;
+    }
+
+    /**
+     * The returned values of check_status()
+     * @return null
+     */
+    public static function instant_check_returns() {
+        return null;
     }
 }

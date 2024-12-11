@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Strings needed to calculate hash code:
     // fawryRefNumber + merchantRefNum + Payment amount(in two decimal format 10.00)
-    // +Order amount(in two decimal format 10.00)+Order Status + Payment method
+    // + Order amount(in two decimal format 10.00) + Order Status + Payment method
     // + Payment reference number ( if exist as in case of notification for order creation this element will be empty) + secureKey.
     $strings = [
         'fawryRefNumber'  => $refnumber,
@@ -77,8 +77,18 @@ if (!$secure->verify_signature_string($signature, $string)) {
 
 $status = strtolower($status);
 if ($status == 'paid') {
-    $order->payment_complete();
-    die ("Order completed");
+    $reference = new paygw_fawry\reference($order);
+    // For more confirmation request the status from Fawry.
+    // Five tries to avoid requests errors.
+    for ($i = 5; $i > 0; $i--) {
+        $response = $reference->request_status();
+        if (strtolower($response['status']) == 'paid') {
+            $order->payment_complete();
+            die ("Order completed");
+        }
+    }
+
+    die("The status is not match from the requested one");
 }
 
 if ($status == 'new') {

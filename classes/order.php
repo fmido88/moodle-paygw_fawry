@@ -108,14 +108,8 @@ class order {
     public function __construct($orderid) {
         global $DB;
         $this->id = $orderid;
-        $record = $DB->get_record(self::TABLENAME, ['id' => $orderid], '*', MUST_EXIST);
 
-        foreach ($record as $key => $value) {
-
-            if (property_exists($this, $key) && !empty($value)) {
-                $this->$key = $value;
-            }
-        }
+        $this->load_record_data();
 
         try {
             $this->payable = helper::get_payable($this->component, $this->paymentarea, $this->itemid);
@@ -152,7 +146,16 @@ class order {
         $surcharge = helper::get_gateway_surcharge('fawry');
         $this->cost = helper::get_rounded_cost($this->rawcost, $this->currency, $surcharge);
     }
+    protected function load_record_data() {
+        global $DB;
+        $record = $DB->get_record(self::TABLENAME, ['id' => $this->id], '*', MUST_EXIST);
 
+        foreach ($record as $key => $value) {
+            if (property_exists($this, $key) && $value !== null) {
+                $this->$key = $value;
+            }
+        }
+    }
     /**
      * Set the fawry payment id
      * @param int $reference
@@ -183,7 +186,7 @@ class order {
      * @param bool $updaterecord
      */
     public function update_status($status, $updaterecord = true) {
-        $this->status = $status;
+        $this->status = strtolower($status);
         if ($updaterecord) {
             $this->update_record();
         }
@@ -333,10 +336,17 @@ class order {
      * Save the payment and process the order
      * This will automatically update the record.
      */
-    public function payment_complete() {
+    public function payment_complete($checkrecord = false) {
+
         if ($this->status == 'success' && !empty($this->paymentid)) {
             return;
         }
+
+        if ($checkrecord) {
+            // Update any change in the status.
+            $this->load_record_data();
+        }
+
         $paymentid = helper::save_payment($this->get_account_id(),
                                 $this->component,
                                 $this->paymentarea,
@@ -383,17 +393,19 @@ class order {
      */
     public static function created_order($component, $paymentarea, $itemid) {
         global $USER, $DB;
-        // Try to get an order with the same data in the last 15 min.
+        // Try to get an order with the same data in the last day.
         $data = [
             'itemid'       => $itemid,
             'component'    => $component,
             'paymentarea'  => $paymentarea,
             'userid'       => $USER->id,
             'status'       => 'new',
-            'timetocheck'  => time() - 15 * MINSECS,
+            'status2'      => 'unpaid',
+            'status3'      => 'pending',
+            'timetocheck'  => time() - DAYSECS,
         ];
         $select = "itemid = :itemid AND component = :component AND paymentarea = :paymentarea";
-        $select .= " AND userid = :userid AND status = :status AND timecreated >= :timetocheck";
+        $select .= " AND userid = :userid AND (status = :status OR status = :status2 OR status = :status3) AND timecreated >= :timetocheck";
         $records = $DB->get_records_select(self::TABLENAME, $select, $data, 'timecreated DESC', 'id', 0, 1);
         if (!empty($records)) {
             return new order(reset($records)->id);
@@ -401,6 +413,8 @@ class order {
 
         // Create a new one.
         unset($data['timetocheck']);
+        unset($data['status2'], $status['status3']);
+
         $data['timecreated'] = $data['timemodified'] = time();
         $orderid = $DB->insert_record(self::TABLENAME, (object)$data);
         return new order($orderid);
@@ -431,15 +445,18 @@ class order {
             $select .= " AND timecreated >= :fromtime";
             $params['fromtime'] = $from;
         }
+
         if ($to > 0) {
             $select .= " AND timecreated <= :totime";
             $params['totime'] = $to;
         }
+
         $records = $DB->get_records_select(self::TABLENAME, $select, $params, '', 'id');
         $orders = [];
         foreach ($records as $record) {
             $orders[$record->id] = new order($record->id);
         }
+
         return $orders;
     }
 }

@@ -23,14 +23,15 @@
 import Ajax from 'core/ajax';
 import $ from 'jquery';
 
-let orderId;
 let successUrl;
+let disabledTimeout;
 
 /**
  * Check the order status
+ * @param {Number} orderId
  * @returns {Promise<Object>}
  */
-function checkStatus() {
+function checkStatus(orderId) {
     let request = Ajax.call([{
         methodname: 'paygw_fawry_check_status',
         args: {
@@ -40,17 +41,52 @@ function checkStatus() {
     return request[0];
 }
 
-export const init = (orderid, url) => {
-    orderId = orderid;
-    successUrl = url;
-    var interval = setInterval(async() => {
-        let response = await checkStatus();
-        if (response.status === 'success') {
-            clearInterval(interval);
-            window.location.href = successUrl;
-        } else if (response.status === 'failed') {
-            clearInterval(interval);
+/**
+ * Instant check for the order status.
+ * @param {Number} orderId
+ * @returns {void}
+ */
+async function instantCheck(orderId) {
+    let requests = Ajax.call([{
+        methodname: 'paygw_fawry_instant_check',
+        args: {
+            orderid: orderId
         }
-        $('[data-purpose="status"]').text(response.status);
-    }, 15000);
+    }]);
+    let data = await requests[0];
+    // eslint-disable-next-line no-console
+    console.log(data);
+}
+
+export const init = (orderid = null, url = null) => {
+
+
+    if (orderid) {
+        successUrl = url;
+        var interval = setInterval(async() => {
+            let response = await checkStatus();
+            if (response.status === 'success') {
+                clearInterval(interval);
+                window.location.href = successUrl;
+            } else if (response.status === 'failed') {
+                clearInterval(interval);
+            }
+            $('[data-purpose="status"]').text(response.status);
+        }, 15000);
+    }
+
+
+    let button = $('button[data-action="check"]');
+    button.on('click', function() {
+        let $this = $(this); // Save reference to button
+        let orderId = $this.data("orderId");
+        if (orderId) {
+            clearTimeout(disabledTimeout);
+            $this.attr('disabled', true); // Correct use of `attr`
+            instantCheck();
+            disabledTimeout = setTimeout(function() {
+                $this.attr('disabled', false); // Correct use of `attr`
+            }, 30000);
+        }
+    });
 };
