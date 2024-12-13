@@ -76,7 +76,7 @@ export const init = (orderid = null, url = null) => {
     }
 
 
-    let button = $('button[data-action="check"]');
+    let button = $('button[data-action="check-status"]');
     button.on('click', function() {
         let $this = $(this); // Save reference to button
         let orderId = $this.data("orderId");
