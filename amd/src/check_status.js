@@ -79,13 +79,13 @@ export const init = (orderid = null, url = null) => {
     let button = $('button[data-action="check-status"]');
     button.on('click', function() {
         let $this = $(this); // Save reference to button
-        let orderId = $this.data("orderId");
+        let orderId = $this.data("orderid");
         if (orderId) {
             clearTimeout(disabledTimeout);
-            $this.attr('disabled', true); // Correct use of `attr`
+            $this.attr('disabled', true);
             instantCheck();
             disabledTimeout = setTimeout(function() {
-                $this.attr('disabled', false); // Correct use of `attr`
+                $this.attr('disabled', false);
             }, 30000);
         }
     });
