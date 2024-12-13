@@ -90,7 +90,7 @@ class api extends external_api {
      * Update the order status instantaneously
      * @param int $orderid
      * @throws moodle_exception
-     * @return null
+     * @return array
      */
     public static function instant_check($orderid) {
         global $USER;
@@ -112,14 +112,17 @@ class api extends external_api {
             $order->payment_complete();
         }
 
-        return null;
+        return $response;
     }
 
     /**
      * The returned values of check_status()
-     * @return null
+     * @return external_single_structure
      */
     public static function instant_check_returns() {
-        return null;
+        return new external_single_structure([
+            'status' => new external_value(PARAM_ALPHA, 'The order status'),
+            'msg'    => new external_value(PARAM_TEXT, 'The order status message', VALUE_OPTIONAL),
+        ]);
     }
 }

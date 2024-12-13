@@ -83,7 +83,7 @@ export const init = (orderid = null, url = null) => {
         if (orderId) {
             clearTimeout(disabledTimeout);
             $this.attr('disabled', true);
-            instantCheck();
+            instantCheck(orderId);
             disabledTimeout = setTimeout(function() {
                 $this.attr('disabled', false);
             }, 30000);
