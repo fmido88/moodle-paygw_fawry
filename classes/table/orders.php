@@ -80,7 +80,7 @@ class orders extends \table_sql {
         $where = '';
         $params = [];
         if (!has_capability('paygw/fawry:viewreport', \context_system::instance())) {
-            $where .= " AND ord.userid = :userid";
+            $where .= "ord.userid = :userid";
             $params['userid'] = $USER->id;
         }
         $this->set_sql($fields, $from, $where, $params);
