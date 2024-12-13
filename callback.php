@@ -58,11 +58,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'referenceNumber' => $payrefnum,
     ];
     $string = implode('', $strings);
+
+    // Cleaning all parameters.
+    $tobecleaned = [
+        'refnumber'   => PARAM_INT,
+        'signature'   => PARAM_ALPHANUM,
+        'orderid'     => PARAM_INT,
+        'payamount'   => PARAM_FLOAT,
+        'orderamount' => PARAM_FLOAT,
+        'status'      => PARAM_ALPHA,
+        'method'      => PARAM_TEXT,
+        'payrefnum'   => PARAM_TEXT,
+    ];
+
+    foreach ($tobecleaned as $key => $type) {
+        if (isset($$key)) {
+            $$key = clean_param($$key, $type);
+        }
+    }
+
 } else {
     die('METHOD "' . $_SERVER['REQUEST_METHOD'] . '" NOT ALLOWED');
 }
-
-$orderid = clean_param($orderid, PARAM_INT);
 
 if (empty($orderid)) {
     die('ORDER ID NOT FOUND');
