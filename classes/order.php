@@ -146,6 +146,11 @@ class order {
         $surcharge = helper::get_gateway_surcharge('fawry');
         $this->cost = helper::get_rounded_cost($this->rawcost, $this->currency, $surcharge);
     }
+
+    /**
+     * Load the record data.
+     * @return void
+     */
     protected function load_record_data() {
         global $DB;
         $record = $DB->get_record(self::TABLENAME, ['id' => $this->id], '*', MUST_EXIST);
