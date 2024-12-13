@@ -44,7 +44,7 @@ class orders extends \table_sql {
             'itemid'       => get_string('itemid', 'paygw_fawry'),
             'paymentarea'  => get_string('paymentarea', 'paygw_fawry'),
             'component'    => get_string('component', 'paygw_fawry'),
-            'payment_id'   => get_string('paymentid', 'paygw_fawry'),
+            'paymentid'    => get_string('paymentid', 'paygw_fawry'),
             'amount'       => get_string('amount', 'paygw_fawry'),
             'currency'     => get_string('currency'),
             'status'       => get_string('status'),
@@ -77,10 +77,10 @@ class orders extends \table_sql {
         $fields = "ord.* $ufields";
         $from = "{paygw_fawry_orders} ord";
         $from .= " JOIN {user} u ON u.id = ord.userid";
-        $where = '';
+        $where = '1=1';
         $params = [];
         if (!has_capability('paygw/fawry:viewreport', \context_system::instance())) {
-            $where .= "ord.userid = :userid";
+            $where .= " AND ord.userid = :userid";
             $params['userid'] = $USER->id;
         }
         $this->set_sql($fields, $from, $where, $params);

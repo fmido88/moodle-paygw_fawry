@@ -36,4 +36,12 @@ $functions = [
         'services'    => [],
         'ajax'        => true,
     ],
+    'paygw_fawry_instant_check' => [
+        'classname'   => 'paygw_fawry\ajax\api',
+        'methodname'  => 'instant_check',
+        'description' => 'Check the status of the order directly by inquiry from Fawry',
+        'type'        => 'read',
+        'services'    => [],
+        'ajax'        => true,
+    ],
 ];

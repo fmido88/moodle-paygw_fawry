@@ -69,3 +69,14 @@ $string['staging'] = 'Staging';
 $string['unknown_error'] = 'Unknown error';
 $string['validto'] = 'Valid to';
 $string['refamount'] = 'Pay an amount of';
+
+$string['localorderid'] = 'Local order id';
+$string['itemid'] = 'Item id';
+$string['paymentarea'] = 'Payment area';
+$string['component'] = 'Component';
+$string['paymentid'] = 'Payment id';
+$string['amount'] = 'Amount';
+$string['timemodified'] = 'Time modified';
+$string['check_status'] = 'Check status';
+$string['fawry:viewreport'] = 'View Fawry report';
+$string['orders_report'] = 'Fawry order report';

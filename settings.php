@@ -32,7 +32,7 @@ if ($ADMIN->fulltree) {
 }
 
 $reporturl = new moodle_url("/payment/gateway/fawry/report.php");
-$report = new admin_externalpage('paygw_payment_report',
+$report = new admin_externalpage('paygw_fawry_payment_report',
                                 get_string('orders_report', 'paygw_fawry'),
                                 $reporturl, 'paygw/fawry:viewreport');
 $ADMIN->add('reports', $report);

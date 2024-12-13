@@ -39,6 +39,7 @@ if (!$table->is_downloading()) {
 
     $PAGE->requires->js_call_amd('paygw_fawry/check_status', 'init', []);
     echo $OUTPUT->header();
+    echo $OUTPUT->heading($title);
 }
 
 $table->out(50, true);

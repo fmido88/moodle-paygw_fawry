@@ -26,6 +26,6 @@ defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'paygw_fawry';
 $plugin->release = '1.1.0';
-$plugin->version = 2023071401;
+$plugin->version = 2024121401;
 $plugin->requires = 2022112800;
 $plugin->maturity = MATURITY_STABLE;
