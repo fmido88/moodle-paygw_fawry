@@ -30,3 +30,9 @@ if ($ADMIN->fulltree) {
 
     \core_payment\helper::add_common_gateway_settings($settings, 'paygw_fawry');
 }
+
+$reporturl = new moodle_url("/payment/gateway/fawry/report.php");
+$report = new admin_externalpage('paygw_payment_report',
+                                get_string('orders_report', 'paygw_fawry'),
+                                $reporturl, 'paygw/fawry:viewreport');
+$ADMIN->add('reports', $report);
