@@ -48,7 +48,6 @@ class orders extends \table_sql {
             'amount'       => get_string('amount', 'paygw_fawry'),
             'currency'     => get_string('currency'),
             'status'       => get_string('status'),
-            'notes'        => get_string('notes', 'notes'),
             'timecreated'  => get_string('timecreated'),
             'timemodified' => get_string('timemodified', 'paygw_fawry'),
         ];
@@ -62,7 +61,6 @@ class orders extends \table_sql {
         $this->define_columns(array_keys($columns));
         $this->no_sorting('amount');
         $this->no_sorting('currency');
-        $this->no_sorting('notes');
 
         $this->define_headers(array_values($columns));
         $this->set_our_sql();
