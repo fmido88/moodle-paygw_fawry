@@ -231,7 +231,7 @@ class reference extends requester {
 
             return [
                 'status' => 'error',
-                'msg'    => json_decode($response),
+                'msg'    => json_encode($response),
             ];
         }
 
