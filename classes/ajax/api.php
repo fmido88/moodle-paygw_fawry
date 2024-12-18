@@ -99,7 +99,8 @@ class api extends external_api {
         $orderid = $params['orderid'];
         $order = new order($orderid);
         $userid = $order->get_userid();
-        if ($userid != $USER->id) {
+        $context = \context_system::instance();
+        if (($userid != $USER->id) && !has_capability('paygw/fawry:viewreport', $context)) {
             throw new moodle_exception('invaliduserid');
         }
 
