@@ -71,7 +71,7 @@ class orders extends \table_sql {
      * @return void
      */
     public function set_our_sql() {
-        global $USER;
+        global $USER, $DB;
         $ufieldsapi = \core_user\fields::for_name();
         $ufields = $ufieldsapi->get_sql('u')->selects;
         $fields = "ord.* $ufields";
@@ -83,6 +83,18 @@ class orders extends \table_sql {
             $where .= " AND ord.userid = :userid";
             $params['userid'] = $USER->id;
         }
+
+        $status = optional_param('status', '', PARAM_ALPHA);
+        if ($status == 'uncompleted') {
+            $items = ['paid', 'completed', 'failed', 'cancelled'];
+            [$statusinsql, $statusparams] = $DB->get_in_or_equal($items, SQL_PARAMS_NAMED, 'param', false);
+            $where .= " AND ord.status $statusinsql";
+            $params = array_merge($params, $statusparams);
+        } else if (!empty($status)) {
+            $where .= " AND ord.status = :stat";
+            $params['stat'] = $status;
+        }
+
         $this->set_sql($fields, $from, $where, $params);
     }
 
@@ -114,11 +126,13 @@ class orders extends \table_sql {
         if (in_array($row->status, ['paid', 'completed'])) {
             return $row->status;
         }
+
         $attributes = [
             'data-action'  => 'check-status',
             'data-orderid' => $row->id,
             'class'        => 'btn btn-secondary',
         ];
+
         return \html_writer::tag('button', get_string('check_status', 'paygw_fawry'), $attributes);
     }
 
@@ -131,8 +145,11 @@ class orders extends \table_sql {
         if (empty($row->order)) {
             return '';
         }
+        /**
+         * @var \paygw_fawry\order
+         */
         $order = $row->order;
-        return $order->get_cost();
+        return format_float($order->get_cost(), 2);
     }
 
     /**
@@ -144,6 +161,9 @@ class orders extends \table_sql {
         if (empty($row->order)) {
             return '';
         }
+        /**
+         * @var \paygw_fawry\order
+         */
         $order = $row->order;
         return $order->get_currency();
     }
@@ -159,6 +179,6 @@ class orders extends \table_sql {
             return userdate($row->$column);
         }
 
-        return $row->$column;
+        return s(format_string($row->$column));
     }
 }

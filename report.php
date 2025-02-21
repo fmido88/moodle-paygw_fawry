@@ -44,4 +44,6 @@ if (!$table->is_downloading()) {
 
 $table->out(50, true);
 
-echo $OUTPUT->footer();
+if (!$table->is_downloading()) {
+    echo $OUTPUT->footer();
+}
