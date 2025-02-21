@@ -28,8 +28,6 @@ use paygw_fawry\security;
 // Does not require login in server side transaction process callback.
 require_once(__DIR__ . '/../../../config.php');
 
-global $DB;
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $postdata = file_get_contents('php://input');
     $postdata = mb_convert_encoding($postdata, 'UTF-8', 'ISO-8859-1');
@@ -48,14 +46,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // fawryRefNumber + merchantRefNum + Payment amount(in two decimal format 10.00)
     // + Order amount(in two decimal format 10.00) + Order Status + Payment method
     // + Payment reference number ( if exist as in case of notification for order creation this element will be empty) + secureKey.
+    // Cleaning all parameters as text here to for the concat string then clean it again for DB queries.
     $strings = [
-        'fawryRefNumber'  => $refnumber,
-        'merchantRefNum'  => $orderid,
-        'paymentAmount'   => format_float($payamount, 2),
-        'orderAmount'     => format_float($orderamount, 2),
-        'orderStatus'     => $status,
-        'paymentMethod'   => $method,
-        'referenceNumber' => $payrefnum,
+        'fawryRefNumber'  => clean_param($refnumber, PARAM_TEXT),
+        'merchantRefNum'  => clean_param($orderid, PARAM_TEXT),
+        'paymentAmount'   => $payamount ? format_float($payamount, 2) : '',
+        'orderAmount'     => $orderamount ? format_float($orderamount, 2) : '',
+        'orderStatus'     => clean_param($status, PARAM_TEXT),
+        'paymentMethod'   => clean_param($method, PARAM_TEXT),
+        'referenceNumber' => clean_param($payrefnum, PARAM_TEXT),
     ];
     $string = implode('', $strings);
 

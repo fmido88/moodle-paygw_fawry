@@ -80,3 +80,5 @@ $string['timemodified'] = 'Time modified';
 $string['check_status'] = 'Check status';
 $string['fawry:viewreport'] = 'View Fawry report';
 $string['orders_report'] = 'Fawry order report';
+$string['fawryreferences'] = 'My Fawry references';
+$string['fawryreport'] = 'Fawry report';

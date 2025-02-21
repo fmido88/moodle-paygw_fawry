@@ -44,7 +44,7 @@ function checkStatus(orderId) {
 /**
  * Instant check for the order status.
  * @param {Number} orderId
- * @returns {void}
+ * @returns {Promise<Object>}
  */
 async function instantCheck(orderId) {
     let requests = Ajax.call([{
@@ -53,9 +53,10 @@ async function instantCheck(orderId) {
             orderid: orderId
         }
     }]);
-    let data = await requests[0];
+    let data = requests[0];
     // eslint-disable-next-line no-console
-    console.log(data);
+    console.log(await data);
+    return data;
 }
 
 export const init = (orderid = null, url = null) => {
@@ -77,13 +78,13 @@ export const init = (orderid = null, url = null) => {
 
 
     let button = $('button[data-action="check-status"]');
-    button.on('click', function() {
+    button.on('click', async function() {
         let $this = $(this); // Save reference to button
         let orderId = $this.data("orderid");
         if (orderId) {
             clearTimeout(disabledTimeout);
             $this.attr('disabled', true);
-            instantCheck(orderId);
+            await instantCheck(orderId);
             disabledTimeout = setTimeout(function() {
                 $this.attr('disabled', false);
             }, 30000);

@@ -29,10 +29,18 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_heading('paygw_fawry_settings', '', get_string('pluginname_desc', 'paygw_fawry')));
 
     \core_payment\helper::add_common_gateway_settings($settings, 'paygw_fawry');
+    $settings->add(new admin_setting_configcheckbox('paygw_fawry/referenceinnav',
+                                                    get_string('referenceinnav', 'paygw_fawry'),
+                                                    get_string('referenceinnav_desc', 'paygw_fawry'), 0));
+    $settings->add(new admin_setting_configcheckbox('paygw_fawry/checkcron',
+                                                    get_string('checkcron', 'paygw_fawry'),
+                                                    get_string('checkcron_desc', 'paygw_fawry'), 0));
 }
 
-$reporturl = new moodle_url("/payment/gateway/fawry/report.php");
-$report = new admin_externalpage('paygw_fawry_payment_report',
-                                get_string('orders_report', 'paygw_fawry'),
-                                $reporturl, 'paygw/fawry:viewreport');
-$ADMIN->add('reports', $report);
+if (has_capability('paygw/fawry:viewreport', context_system::instance())) {
+    $reporturl = new moodle_url("/payment/gateway/fawry/report.php");
+    $report = new admin_externalpage('paygw_fawry_payment_report',
+                                    get_string('orders_report', 'paygw_fawry'),
+                                    $reporturl, 'paygw/fawry:viewreport');
+    $ADMIN->add('reports', $report);
+}
