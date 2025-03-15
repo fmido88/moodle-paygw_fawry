@@ -13,7 +13,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 import $ from 'jquery';
+import prefetchString from 'core/prefetch';
+// eslint-disable-next-line camelcase
+import {get_string} from 'core/str';
 
+prefetchString('paygw_fawry', 'copylink');
 /**
  * TODO describe module callback
  *
@@ -25,14 +29,16 @@ import $ from 'jquery';
 /**
  * Event observer to auto copy the callback url.
  */
-export const init = () => {
+export const init = async() => {
+    let string = await get_string('copylink', 'paygw_fawry');
+
     $('#cpicon').on("click", function() {
         var copyText = document.getElementById('cburl').innerText;
         if (navigator && navigator.clipboard) {
             navigator.clipboard.writeText(copyText);
         } else {
             // eslint-disable-next-line no-alert
-            prompt("Copy link, then click OK.", copyText);
+            prompt(string, copyText);
         }
     });
 };
