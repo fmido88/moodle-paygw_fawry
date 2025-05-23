@@ -82,3 +82,8 @@ $string['fawry:viewreport'] = 'View Fawry report';
 $string['orders_report'] = 'Fawry order report';
 $string['fawryreferences'] = 'My Fawry references';
 $string['fawryreport'] = 'Fawry report';
+
+$string['referenceinnav'] = 'Reference in navigation';
+$string['referenceinnav_desc'] = 'Show a tab to redirect to reference numbers page in the navigation bar to show generated reference numbers.';
+$string['checkcron'] = 'Check in cron task';
+$string['checkcron_desc'] = 'If checked a cron task will run periodically to check the payments with Fawry (useful if the callback fails)';
