@@ -24,6 +24,8 @@
 
 namespace paygw_fawry;
 
+use core_useragent;
+
 /**
  * All function needed to perform an API workflow with fawry.
  */
@@ -70,7 +72,9 @@ class requester {
             'TIMEOUT'        => 0,
             'FOLLOWLOCATION' => true,
             'failonerror'    => false,
+            'useragent'      => core_useragent::get_user_agent_string(),
         ]);
+
         $curl->setHeader([
             'Content-Type: application/json',
             'Accept: application/json',

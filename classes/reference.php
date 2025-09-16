@@ -198,7 +198,7 @@ class reference extends requester {
 
         $data = [
             'merchantCode'      => $this->mcode,
-            'merchantRefNumber' => $this->order->get_id(),
+            'merchantRefNumber' => (string)$this->order->get_id(),
             'signature'         => $secure->make_status_signature(),
         ];
 
