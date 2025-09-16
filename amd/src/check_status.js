@@ -59,6 +59,51 @@ async function instantCheck(orderId) {
     return data;
 }
 
+/**
+ * Register the instance check button in the reports table.
+ */
+async function registerInstanceCheckButton() {
+    let button = $('button[data-action="check-status"]');
+    button.on('click', async function() {
+        let $this = $(this); // Save reference to button
+
+        let orderId = $this.data("orderid");
+        if (orderId) {
+            clearTimeout(disabledTimeout);
+            $this.attr('disabled', true);
+            await instantCheck(orderId);
+            // Todo: Add a modal to show the new status or reload the page.
+            disabledTimeout = setTimeout(function() {
+                $this.attr('disabled', false);
+            }, 30000);
+        }
+    });
+}
+/**
+ * Register the check button in process page.
+ * @param {Number} orderid
+ */
+async function registerNormalCheckButton(orderid) {
+    let button = $('button[data-action="check-status"]');
+    button.on('click', async function() {
+        let $this = $(this); // Save reference to button
+
+        if (orderid) {
+            clearTimeout(disabledTimeout);
+            $this.attr('disabled', true);
+            await instantCheck(orderid);
+            let response = await checkStatus(orderid);
+            if (response.status === 'success') {
+                window.location.href = successUrl;
+            } else {
+                disabledTimeout = setTimeout(function() {
+                    $this.attr('disabled', false);
+                }, 30000);
+            }
+        }
+    });
+}
+
 export const init = (orderid = null, url = null) => {
 
     if (orderid) {
@@ -75,17 +120,10 @@ export const init = (orderid = null, url = null) => {
         }, 15000);
     }
 
-    let button = $('button[data-action="check-status"]');
-    button.on('click', async function() {
-        let $this = $(this); // Save reference to button
-        let orderId = $this.data("orderid");
-        if (orderId) {
-            clearTimeout(disabledTimeout);
-            $this.attr('disabled', true);
-            await instantCheck(orderId);
-            disabledTimeout = setTimeout(function() {
-                $this.attr('disabled', false);
-            }, 30000);
-        }
-    });
+    if (orderid) {
+        registerNormalCheckButton();
+    } else {
+        registerInstanceCheckButton();
+    }
+
 };

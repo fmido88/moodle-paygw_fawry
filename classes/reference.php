@@ -100,7 +100,7 @@ class reference extends requester {
             'customerMobile'    => $this->get_user_mobile(),
             'customerEmail'     => $user->email,
             'amount'            => $this->order->get_cost(),
-            'paymentExpiry'     => (time() + DAYSECS) * 1000,
+            'paymentExpiry'     => (time() + 3 * DAYSECS) * 1000,
             'description'       => $this->description,
             'language'          => current_language(),
             'chargeItems' => [

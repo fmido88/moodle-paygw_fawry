@@ -39,9 +39,14 @@
             <h2>{{# str }} reference_bill_reference, paygw_fawry {{/ str }}</h2>
             <h3 class="fawry_reference">{{reference}}</h3>
             <h4 class="fawry-amount"> {{#str}} refamount, paygw_fawry {{/str}}: {{amount}} EGP</h4>
-            <p>{{# str }} validto, paygw_fawry {{/ str}}: {{deadtime}}</p>
+            {{#deadtime}}
+                <p>{{# str }} validto, paygw_fawry {{/ str}}: {{deadtime}}</p>
+            {{/deadtime}}
             <p>{{# str }} reference_process_help, paygw_fawry {{/ str }}</p>
             <div data-purpose="status"></div>
+            <button data-action="check-status" class="btn btn-info">
+                {{#str}}checkstatus, paygw_fawry{{/str}}
+            </button>
         {{/success}}
         {{^success}}
             <h2>{{# str }} reference_error, paygw_fawry {{/ str }}</h2>
