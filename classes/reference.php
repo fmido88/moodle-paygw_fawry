@@ -225,14 +225,6 @@ class reference extends requester {
             'signature'         => $secure->make_status_signature(),
         ];
 
-        // The merchantCode could have special characters and Fawry not recognize escaping.
-        $params = [];
-        foreach ($data as $key => $value) {
-            $params[] = "$key=$value";
-        }
-
-        $params = implode('&', $params);
-        // $url .= "?{$params}";
         $response = $this->request($data, $url, 'get');
 
         if (!empty($response)) {

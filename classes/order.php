@@ -202,7 +202,7 @@ class order {
      * which is the same as the table
      * @return int
      */
-    public function get_id() {
+    public function get_id(): int {
         return $this->id;
     }
     /**

@@ -61,11 +61,10 @@ async function instantCheck(orderId) {
 
 export const init = (orderid = null, url = null) => {
 
-
     if (orderid) {
         successUrl = url;
-        var interval = setInterval(async() => {
-            let response = await checkStatus();
+        var interval = setInterval(async function() {
+            let response = await checkStatus(orderid);
             if (response.status === 'success') {
                 clearInterval(interval);
                 window.location.href = successUrl;
@@ -75,7 +74,6 @@ export const init = (orderid = null, url = null) => {
             $('[data-purpose="status"]').text(response.status);
         }, 15000);
     }
-
 
     let button = $('button[data-action="check-status"]');
     button.on('click', async function() {

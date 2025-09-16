@@ -116,6 +116,7 @@ if (is_object($refcode)) {
     ];
     $PAGE->requires->js_call_amd('paygw_fawry/check_status', 'init', $jsparams);
 
+    // Todo: Add check status button.
 } else if (is_string($refcode)) {
     $templatedata->error = $refcode;
     $templatedata->success = false;
