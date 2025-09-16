@@ -36,6 +36,21 @@ class reference extends requester {
      * @var string
      */
     public $description;
+
+    public function change_description($newdescription, $append = true) {
+        $new = trim(format_string($newdescription));
+        if (empty($new)) {
+            return;
+        }
+
+        if ($append) {
+            $this->description .= " $new";
+        } else {
+            // Fullname . username . coursefullname . original category.
+            $this->description = $new;
+        }
+    }
+
     /**
      * Construct
      * @param order|int $order
@@ -110,6 +125,14 @@ class reference extends requester {
      * @return object|string|null
      */
     public function request_reference() {
+        if ($reference = $this->order->get_fawry_reference()) {
+            return (object)[
+                'reference' => $reference,
+                'deadtime'  => null,
+                'amount'    => $this->order->get_cost(),
+            ];
+        }
+
         $staging = (bool)$this->order->get_gateway_config()->staging;
         if ($staging) {
             $url = 'https://atfawry.fawrystaging.com/ECommerceWeb/Fawry/payments/charge';
@@ -203,12 +226,14 @@ class reference extends requester {
         ];
 
         // The merchantCode could have special characters and Fawry not recognize escaping.
-        $params = '';
+        $params = [];
         foreach ($data as $key => $value) {
-            $params .= "$key=$value&";
+            $params[] = "$key=$value";
         }
-        $params = substr($params, 0, -1);
-        $response = $this->request([], $url, 'get');
+
+        $params = implode('&', $params);
+        // $url .= "?{$params}";
+        $response = $this->request($data, $url, 'get');
 
         if (!empty($response)) {
             if (is_string($response)) {
