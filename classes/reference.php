@@ -16,6 +16,8 @@
 
 namespace paygw_fawry;
 
+use core_text;
+
 /**
  * Class reference
  *
@@ -152,6 +154,7 @@ class reference extends requester {
             // + shippingFees (if exist) (in two decimal places format 10.00))
             // + authNumber (if exists) + customerMail (if exist) + customerMobile (if exist) + secureKey.
             $this->order->set_fawry_reference($response->referenceNumber);
+            $this->order->update_status($response->orderStatus);
             return (object)[
                 'reference' => $response->referenceNumber,
                 'deadtime'  => date('F j, Y, g:i A', ceil($response->expirationTime / 1000)),
@@ -243,7 +246,21 @@ class reference extends requester {
             }
 
             if (!empty($response->orderStatus)) {
-                return ['status' => $response->orderStatus];
+
+                $status = $response->orderStatus;
+
+                $status = core_text::strtolower($status);
+                if ($status == 'paid') {
+                    $this->order->payment_complete();
+                } else if ($status != $this->order->get_status()) {
+                    $this->order->update_status($status);
+                }
+
+                if (isset($response->fawryRefNumber) && empty($this->order->get_fawry_reference())) {
+                    $this->order->set_fawry_reference($response->fawryRefNumber);
+                }
+
+                return ['status' => $status];
             }
 
             return [

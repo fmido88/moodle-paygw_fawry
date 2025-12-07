@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace paygw_fawry\table;
+
+use core\output\html_writer;
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir . '/tablelib.php');
@@ -39,17 +41,17 @@ class orders extends \table_sql {
         $this->show_download_buttons_at([TABLE_P_BOTTOM]);
 
         $columns = [
-            'id'           => get_string('localorderid', 'paygw_fawry'),
-            'fullname'     => get_string('user'),
-            'itemid'       => get_string('itemid', 'paygw_fawry'),
-            'paymentarea'  => get_string('paymentarea', 'paygw_fawry'),
-            'component'    => get_string('component', 'paygw_fawry'),
-            'paymentid'    => get_string('paymentid', 'paygw_fawry'),
-            'amount'       => get_string('amount', 'paygw_fawry'),
-            'currency'     => get_string('currency'),
-            'status'       => get_string('status'),
-            'timecreated'  => get_string('timecreated'),
-            'timemodified' => get_string('timemodified', 'paygw_fawry'),
+            'id'            => get_string('localorderid', 'paygw_fawry'),
+            'fullname'      => get_string('user'),
+            'itemid'        => get_string('itemid', 'paygw_fawry'),
+            'areacomponent' => get_string('paymentarea', 'paygw_fawry') . " | " . get_string('component', 'paygw_fawry'),
+            'paymentid'     => get_string('paymentid', 'paygw_fawry'),
+            'reference'     => get_string('reference', 'paygw_fawry'),
+            'amount'        => get_string('amount', 'paygw_fawry'),
+            'currency'      => get_string('currency'),
+            'status'        => get_string('status'),
+            'timecreated'   => get_string('timecreated'),
+            'timemodified'  => get_string('timemodified', 'paygw_fawry'),
         ];
 
         if (!$this->is_downloading()) {
@@ -66,6 +68,11 @@ class orders extends \table_sql {
         $this->set_our_sql();
     }
 
+    public function col_fullname($row) {
+        $newrow = clone $row;
+        $newrow->id = $row->userid;
+        return parent::col_fullname($newrow);
+    }
     /**
      * Set our proper sql.
      * @return void
@@ -123,7 +130,10 @@ class orders extends \table_sql {
      */
     public function col_check($row) {
         global $DB;
-        if (in_array($row->status, ['paid', 'completed'])) {
+        if ($this->is_downloading()) {
+            return '';
+        }
+        if (in_array($row->status, ['paid', 'completed', 'success'])) {
             return $row->status;
         }
 
@@ -133,9 +143,22 @@ class orders extends \table_sql {
             'class'        => 'btn btn-secondary',
         ];
 
-        return \html_writer::tag('button', get_string('check_status', 'paygw_fawry'), $attributes);
+        $button = html_writer::tag('button', get_string('check_status', 'paygw_fawry'), $attributes);
+        $attributes = [
+            'data-purpose'  => 'status-response',
+            'data-orderid'  => $row->id,
+        ];
+        $statusholder = html_writer::span('', '', $attributes);
+        return $button . $statusholder;
     }
 
+    public function col_status($row) {
+        if ($this->is_downloading()) {
+            return $row->status;
+        }
+
+        return html_writer::span($row->status, '', ['data-orderid' => $row->id, 'data-purpose' => 'order-status']);
+    }
     /**
      * Amount
      * @param object $row
@@ -145,6 +168,7 @@ class orders extends \table_sql {
         if (empty($row->order)) {
             return '';
         }
+
         /**
          * @var \paygw_fawry\order
          */
@@ -166,6 +190,10 @@ class orders extends \table_sql {
          */
         $order = $row->order;
         return $order->get_currency();
+    }
+
+    public function col_areacomponent($row) {
+        return $row->paymentarea . " | " . $row->component;
     }
 
     /**

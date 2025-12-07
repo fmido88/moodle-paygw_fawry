@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace paygw_fawry\ajax;
+
+use core_text;
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir . '/externallib.php');
@@ -106,12 +108,6 @@ class api extends external_api {
 
         $reference = new reference($order);
         $response = $reference->request_status();
-
-        $status = $response['status'] ?? '';
-
-        if (strtolower($status) == 'paid') {
-            $order->payment_complete();
-        }
 
         return $response;
     }

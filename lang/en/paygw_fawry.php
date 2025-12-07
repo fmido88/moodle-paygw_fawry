@@ -87,3 +87,14 @@ $string['referenceinnav'] = 'Reference in navigation';
 $string['referenceinnav_desc'] = 'Show a tab to redirect to reference numbers page in the navigation bar to show generated reference numbers.';
 $string['checkcron'] = 'Check in cron task';
 $string['checkcron_desc'] = 'If checked a cron task will run periodically to check the payments with Fawry (useful if the callback fails)';
+
+$string['copylink'] = 'Copy link';
+$string['reference'] = 'Reference';
+$string['checkpendingtask'] = 'Check pending orders';
+$string['checkstatus'] = 'Check status';
+
+$string['order'] = 'Order';
+$string['order_id'] = 'Order id (Merchant id)';
+$string['status'] = 'Status';
+$string['component_paymentarea'] = 'Component | Payment area';
+$string['check_all_status'] = 'Check status of selected';

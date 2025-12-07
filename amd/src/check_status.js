@@ -22,9 +22,18 @@
  */
 import Ajax from 'core/ajax';
 import $ from 'jquery';
+import * as reportSelectors from 'core_reportbuilder/local/selectors';
 
 let successUrl;
 let disabledTimeout;
+
+const Selectors = {
+    bulkCheck: 'button[data-action="check-status-bulk"]',
+    reportWrapper: '[data-region="fawry-report-wrapper"]',
+    checkbox: 'input[type="checkbox"][data-togglegroup="report-select-all"][data-toggle="slave"]',
+    masterCheckbox: 'input[type="checkbox"][data-togglegroup="report-select-all"][data-toggle="master"]',
+    checkedRows: '[data-togglegroup="report-select-all"][data-toggle="slave"]:checked',
+};
 
 /**
  * Check the order status
@@ -43,40 +52,107 @@ function checkStatus(orderId) {
 
 /**
  * Instant check for the order status.
- * @param {Number} orderId
+ * @param {Array<Number>|Number} orderIds
  * @returns {Promise<Object>}
  */
-async function instantCheck(orderId) {
-    let requests = Ajax.call([{
-        methodname: 'paygw_fawry_instant_check',
-        args: {
-            orderid: orderId
-        }
-    }]);
-    let data = requests[0];
-    // eslint-disable-next-line no-console
-    console.log(await data);
-    return data;
-}
+async function instantCheck(orderIds) {
+    let ids = Array.isArray(orderIds) ? orderIds : [orderIds];
+    let tobeRequested = ids.map(orderId => {
+        return {
+            methodname: 'paygw_fawry_instant_check',
+            args: {
+                orderid: orderId
+            }
+        };
+    });
+    let requests = Ajax.call(tobeRequested);
+    let data = await Promise.all(requests);
 
+    let indexedData = {};
+    data.forEach((response, index) => {
+        indexedData[ids[index]] = response;
+    });
+
+    // eslint-disable-next-line no-console
+    console.log(await indexedData);
+    return indexedData;
+}
+/**
+ * Perform instance check for a specific order id.
+ * @param {Number|Array<number>} orderIds
+ */
+async function instanceCheckForIds(orderIds) {
+    orderIds = Array.isArray(orderIds) ? orderIds : [orderIds];
+    let holders = {};
+    for (const orderId of orderIds) {
+        holders[orderId] = $('[data-purpose="status-response"][data-orderid="' + orderId + '"]');
+        holders[orderId].html('Checking...');
+    }
+
+    let response = await instantCheck(orderIds);
+
+    for (const orderId of orderIds) {
+        let $this = $('[data-action="check-status"][data-orderid="' + orderId + '"]').filter('a, button');
+        let statusCell = $this.closest('tr').find('[data-purpose="order-status"]');
+        if (response[orderId].status) {
+            statusCell.text(response[orderId].status);
+        }
+
+        if (response[orderId].msg) {
+            let responseHtml = "<br><pre>" + JSON.stringify(response[orderId], null, '\t') + "</pre>";
+            if (holders[orderId].length) {
+                holders[orderId].html(responseHtml);
+            } else if (statusCell.length) {
+                let newHolder = $('<div data-purpose="status-response" data-orderid="' + orderId + '"></div>');
+                statusCell.append(newHolder);
+                newHolder.html(responseHtml);
+                setTimeout(function() {
+                    newHolder.fadeOut(500, function() {
+                        $(this).remove();
+                    });
+                }, 15000);
+            }
+        }
+    }
+}
 /**
  * Register the instance check button in the reports table.
  */
 async function registerInstanceCheckButton() {
-    let button = $('button[data-action="check-status"]');
-    button.on('click', async function() {
+    let button = $('button[data-action="check-status"], a[data-action="check-status"]');
+    button.on('click', async function(e) {
+        e.preventDefault();
+        e.stopPropagation();
         let $this = $(this); // Save reference to button
+        clearTimeout(disabledTimeout);
+        $this.attr('disabled', true);
 
         let orderId = $this.data("orderid");
         if (orderId) {
-            clearTimeout(disabledTimeout);
-            $this.attr('disabled', true);
-            await instantCheck(orderId);
-            // Todo: Add a modal to show the new status or reload the page.
-            disabledTimeout = setTimeout(function() {
-                $this.attr('disabled', false);
-            }, 30000);
+            await instanceCheckForIds(orderId);
         }
+
+        disabledTimeout = setTimeout(function() {
+            $this.attr('disabled', false);
+        }, 5000);
+    });
+
+    let bulkButton = $(Selectors.bulkCheck);
+    bulkButton.on('click', async function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        let $this = $(this); // Save reference to button
+        clearTimeout(disabledTimeout);
+        $this.attr('disabled', true);
+
+        let reportRegion = $(reportSelectors.regions.report);
+        const selectedOrders = [...reportRegion.find(Selectors.checkedRows)];
+        const ordersIds = selectedOrders.map(check => parseInt(check.value));
+        await instanceCheckForIds(ordersIds);
+
+        disabledTimeout = setTimeout(function() {
+            $this.attr('disabled', false);
+        }, 5000);
     });
 }
 /**

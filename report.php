@@ -1,4 +1,6 @@
 <?php
+
+use core_reportbuilder\system_report_factory;
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -24,15 +26,18 @@
 
 require('../../../config.php');
 
-require_login();
+require_admin();
 
+$context = context_system::instance();
 $url = new moodle_url('/payment/gateway/fawry/report.php', []);
 $PAGE->set_url($url);
-$PAGE->set_context(context_system::instance());
+$PAGE->set_context($context);
 
-$table = new \paygw_fawry\table\orders($url);
+$report = system_report_factory::create(\paygw_fawry\reportbuilder\local\systemreports\orders::class, $context);
 
-if (!$table->is_downloading()) {
+// $table = new \paygw_fawry\table\orders($url);
+
+// if (!$table->is_downloading()) {
     $title = get_string('orders_report', 'paygw_fawry');
     $PAGE->set_heading($title);
     $PAGE->set_title($title);
@@ -40,10 +45,18 @@ if (!$table->is_downloading()) {
     $PAGE->requires->js_call_amd('paygw_fawry/check_status', 'init', []);
     echo $OUTPUT->header();
     echo $OUTPUT->heading($title);
-}
+// }
 
-$table->out(50, true);
+echo html_writer::start_div('', ['data-region' => 'fawry-report-wrapper']);
+// $table->out(50, true);
+echo $report->output();
 
-if (!$table->is_downloading()) {
+echo html_writer::tag('button',
+    get_string('check_all_status', 'paygw_fawry'),
+    ['id' => 'paygw-fawry-check-all-status', 'class' => 'btn btn-secondary mb-3', 'data-action' => 'check-status-bulk']
+);
+echo html_writer::end_div();
+
+// if (!$table->is_downloading()) {
     echo $OUTPUT->footer();
-}
+// }

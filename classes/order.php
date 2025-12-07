@@ -99,7 +99,7 @@ class order {
     /**
      * The database table name
      */
-    protected const TABLENAME = 'paygw_fawry_orders';
+    public const TABLENAME = 'paygw_fawry_orders';
 
     /**
      * Create a class to manage an order locally
@@ -113,7 +113,10 @@ class order {
 
         try {
             $this->payable = helper::get_payable($this->component, $this->paymentarea, $this->itemid);
-        } catch (\dml_exception $e) {
+        } catch (\Throwable $e) {
+            if (!($e instanceof \dml_exception)) {
+                throw $e;
+            }
             $this->payable = null;
         }
 
@@ -156,7 +159,7 @@ class order {
         $record = $DB->get_record(self::TABLENAME, ['id' => $this->id], '*', MUST_EXIST);
 
         foreach ($record as $key => $value) {
-            if (property_exists($this, $key) && $value !== null) {
+            if (property_exists($this, $key) && !empty($value)) {
                 $this->$key = $value;
             }
         }
@@ -191,7 +194,7 @@ class order {
      * @param bool $updaterecord
      */
     public function update_status($status, $updaterecord = true) {
-        $this->status = strtolower($status);
+        $this->status = \core_text::strtolower($status);
         if ($updaterecord) {
             $this->update_record();
         }
@@ -383,11 +386,15 @@ class order {
         $this->timemodified = time();
         $record = [
             'id'           => $this->id,
-            'paymentid'    => $this->paymentid ?? null,
-            'reference'    => $this->reference ?? null,
             'status'       => $this->status,
             'timemodified' => time(),
         ];
+        if ($paymentid = $this->paymentid ?? null) {
+            $record['paymentid'] = $paymentid;
+        }
+        if ($reference = $this->get_fawry_reference()) {
+            $record['reference'] = $reference;
+        }
         $DB->update_record(self::TABLENAME, (object)$record);
     }
     /**
@@ -440,9 +447,10 @@ class order {
      * Get all orders
      * @param int $from
      * @param int $to
+     * @param string|array|null $status
      * @return array[order]
      */
-    public static function get_orders($from = 0, $to = 0) {
+    public static function get_orders($from = 0, $to = 0, $status = null) {
         global $DB;
         $select = "1=1";
         $params = [];
@@ -456,10 +464,25 @@ class order {
             $params['totime'] = $to;
         }
 
+        if (!empty($status)) {
+            if (is_array($status)) {
+                [$in, $inparams] = $DB->get_in_or_equal($status, SQL_PARAMS_NAMED, 'stat');
+                $select .= " AND status $in";
+                $params = array_merge($params, $inparams);
+            } else {
+                $select .= " AND status = :stat";
+                $params['stat'] = $status;
+            }
+        }
+
         $records = $DB->get_records_select(self::TABLENAME, $select, $params, '', 'id');
         $orders = [];
         foreach ($records as $record) {
-            $orders[$record->id] = new order($record->id);
+            try {
+                $orders[$record->id] = new order($record->id);
+            } catch (\Throwable $e) {
+                continue;
+            }
         }
 
         return $orders;

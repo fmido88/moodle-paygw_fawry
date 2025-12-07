@@ -26,8 +26,6 @@
 require_once(__DIR__ . '/../../../config.php');
 require_login(null, false);
 
-global $DB, $USER;
-
 $orderid     = optional_param('orderid', null, PARAM_INT);
 $description = optional_param('description', '', PARAM_TEXT);
 
@@ -112,7 +110,7 @@ if (is_object($refcode)) {
 
     $jsparams = [
         'orderid' => $order->get_id(),
-        'url' => $order->get_redirect_url()->out(false),
+        'url'     => $order->get_redirect_url()->out(false),
     ];
     $PAGE->requires->js_call_amd('paygw_fawry/check_status', 'init', $jsparams);
 
